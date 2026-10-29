@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}My library{% endblock %}
+{% block content %}
+<section class="page-hero library-hero">
+    <div class="hero-copy">
+        <div class="eyebrow eyebrow-light">YOUR PERSONAL COLLECTION</div>
+        <h1>Stories worth<br>keeping.</h1>
+        <p>A little shelf of moments turned into something more.</p>
+    </div>
+    <div class="library-illustration" aria-hidden="true"><div class="book book-one">✧</div><div class="book book-two">♫</div><div class="book book-three">✦</div></div>
+</section>
+<div class="section-heading">
+    <div><div class="eyebrow">YOUR COLLECTION</div><h2>My stories <span class="count-badge">{{ stories|length }}</span></h2></div>
+    <a class="button button-primary" href="{{ url_for('create_story_page') }}">＋ &nbsp; Create a story</a>
+</div>
+<form class="library-filters" method="get">
+    <div class="search-wrap"><span>⌕</span><input type="search" name="q" value="{{ query }}" placeholder="Search titles, stories, or moments"></div>
+    <select name="language" aria-label="Filter by language">
+        <option value="">All languages</option>
+        {% for language in languages %}<option value="{{ language }}" {% if selected_language == language %}selected{% endif %}>{{ language }}</option>{% endfor %}
+    </select>
+    <button class="button button-outline" type="submit">Filter</button>
+</form>
+{% if stories %}
+<div class="story-grid">
+    {% for story in stories %}
+    <article class="story-card">
+        <a class="story-card-image" href="{{ url_for('story_detail', story_id=story.id) }}">
+            <img src="{{ url_for('private_media', story_id=story.id, kind='photo') }}" alt="Photo for {{ story.title }}">
+            <span class="story-language">{{ story.language }}</span>
+        </a>
+        <div class="story-card-body">
+            <div class="story-card-date">{{ story.created_at.strftime('%b %d, %Y') }}</div>
+            <h3><a href="{{ url_for('story_detail', story_id=story.id) }}">{{ story.title }}</a></h3>
+            <p>{{ story.scenario }}</p>
+            <div class="story-card-footer">
+                <span>{{ story.style }}</span>
+                <div class="story-card-actions">
+                    <a href="{{ url_for('story_detail', story_id=story.id) }}">Open story <span aria-hidden="true">→</span></a>
+                    <form method="post" action="{{ url_for('delete_story_page', story_id=story.id) }}" onsubmit="return confirm('Delete this story and its saved photo and narration?');">
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                        <button class="story-delete-button" type="submit" aria-label="Delete {{ story.title }}" title="Delete story">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6m4-6v6M5 7l1 14h12l1-14M9 7V4h6v3"/></svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </article>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state"><div class="empty-icon">✧</div><h3>No stories here yet</h3><p>Your next favorite story might be one photo away.</p><a class="button button-primary" href="{{ url_for('create_story_page') }}">Create your first story</a></div>
+{% endif %}
+{% endblock %}

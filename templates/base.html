@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f7f6fb">
+    <title>{% block title %}Story Atelier{% endblock %} · Story Atelier</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% if request.endpoint == 'index' %}<link rel="stylesheet" href="{{ url_for('static', filename='css/public-home.css') }}?v=2">{% endif %}
+    {% if session.get('user') %}<link rel="stylesheet" href="{{ url_for('static', filename='css/app-ui.css') }}?v=3">{% endif %}
+</head>
+<body>
+    {% if session.get('user') %}
+    <div class="app-shell">
+        <aside class="sidebar">
+            <a class="brand" href="{{ url_for('dashboard') }}">
+                <span class="brand-mark">✦</span>
+                <span><strong>Story</strong><small>ATELIER</small></span>
+            </a>
+            <div class="sidebar-label">YOUR STUDIO</div>
+            <nav class="side-nav">
+                <a href="{{ url_for('dashboard') }}" class="{% if request.endpoint == 'dashboard' %}active{% endif %}">
+                    <span>⌂</span> Home
+                </a>
+                <a href="{{ url_for('create_story_page') }}" class="{% if request.endpoint == 'create_story_page' %}active{% endif %}">
+                    <span>✧</span> Create a story
+                </a>
+                <a href="{{ url_for('library') }}" class="{% if request.endpoint in ['library', 'story_detail'] %}active{% endif %}">
+                    <span>▤</span> My library
+                </a>
+                <a href="{{ url_for('profile') }}" class="{% if request.endpoint == 'profile' %}active{% endif %}">
+                    <span>◉</span> My profile
+                </a>
+            </nav>
+            <div class="sidebar-bottom">
+                <div class="mini-profile">
+                    <div class="avatar">{{ session['user']['display_name'][:1]|upper }}</div>
+                    <div class="mini-profile-copy">
+                        <strong>{{ session['user']['display_name'] }}</strong>
+                        <span>Personal studio</span>
+                    </div>
+                </div>
+                <form action="{{ url_for('logout') }}" method="post">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                    <button class="nav-logout" type="submit">↗ &nbsp; Sign out</button>
+                </form>
+            </div>
+        </aside>
+        <main class="main-shell">
+            <header class="topbar">
+                <div class="topbar-note">A thoughtful space for stories from real moments.</div>
+                <div class="topbar-user">
+                    <span class="status-dot"></span>
+                    <span>{{ session['user']['display_name'] }}</span>
+                </div>
+            </header>
+            <section class="page-content">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                    <div class="flash-stack">
+                        {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                {% endwith %}
+                {% block content %}{% endblock %}
+            </section>
+            <footer class="footer">Made from moments, kept just for you.</footer>
+        </main>
+    </div>
+    {% else %}
+    <main class="auth-shell{% if request.endpoint == 'index' %} public-home{% endif %}">
+        <header class="public-nav">
+            <a class="brand" href="{{ url_for('index') }}">
+                <span class="brand-mark">✦</span>
+                <span><strong>Story</strong><small>ATELIER</small></span>
+            </a>
+            <nav aria-label="Account navigation">
+                <a href="{{ url_for('index') }}" class="{% if request.endpoint == 'index' %}nav-current{% endif %}">Home</a>
+                <a href="{{ url_for('index') }}#how-it-works">How it works</a>
+                <a href="{{ url_for('login') }}" class="{% if request.endpoint == 'login' %}nav-current{% endif %}">Sign in</a>
+                <a class="public-nav-cta" href="{{ url_for('signup') }}">Create account <span>→</span></a>
+            </nav>
+        </header>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="auth-flashes">
+                {% for category, message in messages %}
+                <div class="flash flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        {% endwith %}
+        {% block auth_content %}{% endblock %}
+    </main>
+    {% endif %}
+    {% if request.endpoint in ['login', 'signup'] %}
+    <script>
+    for (const toggle of document.querySelectorAll("[data-password-toggle]")) {
+        toggle.addEventListener("click", () => {
+            const input = document.getElementById(toggle.getAttribute("aria-controls"));
+            const showPassword = input.type === "password";
+            input.type = showPassword ? "text" : "password";
+            toggle.setAttribute("aria-pressed", String(showPassword));
+            toggle.setAttribute("aria-label", showPassword ? "Hide password" : "Show password");
+        });
+    }
+    </script>
+    {% endif %}
+    {% block scripts %}{% endblock %}
+</body>
+</html>

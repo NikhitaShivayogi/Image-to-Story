@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% block title %}Create a story{% endblock %}
+{% block content %}
+<section class="page-hero create-hero">
+    <div class="hero-copy">
+        <div class="eyebrow eyebrow-light">YOUR CREATIVE SPACE</div>
+        <h1>Every picture has<br>a story to tell.</h1>
+        <p>Bring a favorite moment to life with a story and narration made just for you.</p>
+        <div class="hero-tags"><span>✦ Six languages</span><span>♫ Natural narration</span></div>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+        <div class="art-sun"></div><div class="art-hill hill-back"></div>
+        <div class="art-hill hill-front"></div><div class="art-frame">✧</div>
+    </div>
+</section>
+<div class="section-heading">
+    <div><div class="eyebrow">THE CREATION STUDIO</div><h2>Start with a moment</h2></div>
+    <span class="saved-pill">▤ &nbsp; {{ saved_count }} saved {{ 'story' if saved_count == 1 else 'stories' }}</span>
+</div>
+<div class="steps-row">
+    <div class="step-item"><span>01</span><div><strong>Choose your photo</strong><small>A moment worth remembering</small></div></div>
+    <div class="step-divider"></div>
+    <div class="step-item"><span>02</span><div><strong>Shape your story</strong><small>Language, direction, and length</small></div></div>
+    <div class="step-divider"></div>
+    <div class="step-item"><span>03</span><div><strong>Listen & keep it</strong><small>Saved to your own library</small></div></div>
+</div>
+<form class="creation-grid" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <section class="panel photo-panel">
+        <div class="panel-heading"><span class="panel-icon">▧</span><div><h3>Your photo</h3><p>Choose the image that inspires the story.</p></div></div>
+        <label class="upload-zone" for="photo">
+            <span class="upload-symbol">↑</span>
+            <strong>Drop your photo here</strong>
+            <span>or <u>browse files</u></span>
+            <small>JPG, PNG or WEBP · up to 20 MB</small>
+        </label>
+        <input class="file-input" id="photo" name="photo" type="file" accept=".jpg,.jpeg,.png,.webp" required>
+        <div class="file-name" id="file-name">No photo selected yet</div>
+        <div class="upload-preview" id="upload-preview"><img id="preview-image" alt="Selected photo preview"></div>
+    </section>
+    <section class="panel settings-panel">
+        <div class="panel-heading"><span class="panel-icon panel-icon-lilac">✧</span><div><h3>Shape your story</h3><p>Make it sound and feel like you.</p></div></div>
+        <div class="settings-grid">
+            <div class="field"><label for="language">Story language</label><select name="language" id="language">{% for language in languages %}<option value="{{ language }}" {% if language == session['user'].get('preferred_language', 'English') %}selected{% endif %}>{{ language }}</option>{% endfor %}</select></div>
+            <div class="field">
+                <label for="style">Story style or feeling</label>
+                <div class="story-direction-picker">
+                    <input class="story-direction-input" type="text" id="style" name="style" value="Reflective" maxlength="40" placeholder="Choose a style or type a feeling" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="story-directions" required>
+                    <button class="story-direction-toggle" type="button" aria-label="Show suggested story styles" aria-controls="story-directions" aria-expanded="false">▾</button>
+                    <div class="story-direction-options" id="story-directions" role="listbox" aria-label="Suggested story styles" hidden>
+                        {% for style in styles %}<div class="story-direction-option" role="option" aria-selected="false">{{ style }}</div>{% endfor %}
+                    </div>
+                </div>
+                <small class="field-hint">Choose a suggested style or type a feeling, such as “Feeling low.”</small>
+            </div>
+            <div class="field"><label for="word_limit">Story length</label><div class="number-field"><input type="number" id="word_limit" name="word_limit" min="50" max="500" step="10" value="120"><span>words</span></div></div>
+            <div class="field"><label for="paragraph_count">Paragraphs</label><select name="paragraph_count" id="paragraph_count">{% for count in range(1, 6) %}<option value="{{ count }}" {% if count == 2 %}selected{% endif %}>{{ count }} {{ 'paragraph' if count == 1 else 'paragraphs' }}</option>{% endfor %}</select></div>
+            <div class="field field-wide"><label for="voice">Narration voice</label><select name="voice" id="voice">{% for label, voice in voices.items() %}<option value="{{ voice }}">{{ label }}</option>{% endfor %}</select><small class="field-hint">The selected language guides the image description, story, and spoken narration.</small></div>
+        </div>
+        <button class="button button-primary button-full create-submit" type="submit"><span>✦</span> Create my story <span class="button-arrow">→</span></button>
+    </section>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+const photoInput = document.getElementById("photo");
+const fileName = document.getElementById("file-name");
+const preview = document.getElementById("upload-preview");
+const previewImage = document.getElementById("preview-image");
+const zone = document.querySelector(".upload-zone");
+const directionInput = document.getElementById("style");
+const directionPicker = document.querySelector(".story-direction-picker");
+const directionToggle = document.querySelector(".story-direction-toggle");
+const directionOptions = document.getElementById("story-directions");
+const directionChoices = [...directionOptions.querySelectorAll('[role="option"]')];
+let activeDirectionIndex = -1;
+function closeDirectionOptions() {
+    directionOptions.hidden = true;
+    directionInput.setAttribute("aria-expanded", "false");
+    directionToggle.setAttribute("aria-expanded", "false");
+    directionInput.removeAttribute("aria-activedescendant");
+    activeDirectionIndex = -1;
+}
+function openDirectionOptions() {
+    directionOptions.hidden = false;
+    directionInput.setAttribute("aria-expanded", "true");
+    directionToggle.setAttribute("aria-expanded", "true");
+    directionChoices.forEach(option => {
+        option.hidden = false;
+        option.setAttribute("aria-selected", "false");
+    });
+    activeDirectionIndex = -1;
+    directionInput.removeAttribute("aria-activedescendant");
+}
+function filterDirectionOptions() {
+    const query = directionInput.value.trim().toLowerCase();
+    directionChoices.forEach(option => {
+        option.hidden = query !== "" && !option.textContent.trim().toLowerCase().includes(query);
+        option.setAttribute("aria-selected", "false");
+    });
+    activeDirectionIndex = -1;
+    directionInput.removeAttribute("aria-activedescendant");
+}
+function selectDirection(option) {
+    directionInput.value = option.textContent.trim();
+    closeDirectionOptions();
+    directionInput.focus();
+}
+directionInput.addEventListener("focus", openDirectionOptions);
+directionInput.addEventListener("input", () => {
+    if (directionOptions.hidden) openDirectionOptions();
+    else filterDirectionOptions();
+});
+directionInput.addEventListener("keydown", event => {
+    const visibleOptions = directionChoices.filter(option => !option.hidden);
+    if (event.key === "Escape") {
+        closeDirectionOptions();
+    } else if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        event.preventDefault();
+        if (directionOptions.hidden) openDirectionOptions();
+        if (!visibleOptions.length) return;
+        if (activeDirectionIndex < 0) {
+            activeDirectionIndex = event.key === "ArrowDown" ? 0 : visibleOptions.length - 1;
+        } else {
+            const offset = event.key === "ArrowDown" ? 1 : -1;
+            activeDirectionIndex = (activeDirectionIndex + offset + visibleOptions.length) % visibleOptions.length;
+        }
+        directionChoices.forEach(option => option.setAttribute("aria-selected", "false"));
+        const activeOption = visibleOptions[activeDirectionIndex];
+        activeOption.setAttribute("aria-selected", "true");
+        directionInput.setAttribute("aria-activedescendant", activeOption.id);
+        activeOption.scrollIntoView({ block: "nearest" });
+    } else if (event.key === "Enter" && !directionOptions.hidden && activeDirectionIndex >= 0) {
+        event.preventDefault();
+        selectDirection(visibleOptions[activeDirectionIndex]);
+    }
+});
+directionChoices.forEach((option, index) => {
+    option.id = `story-direction-${index}`;
+    option.addEventListener("mousedown", event => event.preventDefault());
+    option.addEventListener("click", () => selectDirection(option));
+});
+directionToggle.addEventListener("click", () => {
+    if (directionOptions.hidden) {
+        directionInput.focus();
+        openDirectionOptions();
+    } else {
+        closeDirectionOptions();
+    }
+});
+document.addEventListener("click", event => {
+    if (!directionPicker.contains(event.target)) closeDirectionOptions();
+});
+photoInput.addEventListener("change", () => {
+    const file = photoInput.files[0];
+    fileName.textContent = file ? file.name : "No photo selected yet";
+    if (file) {
+        previewImage.src = URL.createObjectURL(file);
+        preview.classList.add("visible");
+    } else {
+        preview.classList.remove("visible");
+    }
+});
+for (const eventName of ["dragenter", "dragover"]) {
+    zone.addEventListener(eventName, event => {
+        event.preventDefault();
+        zone.classList.add("dragging");
+    });
+}
+for (const eventName of ["dragleave", "drop"]) {
+    zone.addEventListener(eventName, event => {
+        event.preventDefault();
+        zone.classList.remove("dragging");
+    });
+}
+zone.addEventListener("drop", event => {
+    const file = event.dataTransfer.files[0];
+    if (!file) return;
+    const transfer = new DataTransfer();
+    transfer.items.add(file);
+    photoInput.files = transfer.files;
+    photoInput.dispatchEvent(new Event("change", { bubbles: true }));
+});
+</script>
+{% endblock %}

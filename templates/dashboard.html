@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Your home{% endblock %}
+{% block content %}
+<section class="dashboard-welcome">
+    <div>
+        <div class="eyebrow">YOUR STORY STUDIO</div>
+        <h1>Welcome back, {{ session['user']['display_name'] }}</h1>
+        <p>Your saved stories and new creations, all in one place.</p>
+    </div>
+    <a class="button button-primary dashboard-create" href="{{ url_for('create_story_page') }}">Create a story <b>→</b></a>
+</section>
+<section class="dashboard-overview">
+    <div class="overview-card overview-primary">
+        <div class="overview-label">STORIES IN YOUR LIBRARY</div>
+        <div class="overview-value">{{ saved_count }}</div>
+        <div class="overview-description">{{ 'story saved' if saved_count == 1 else 'stories saved' }}</div>
+        <a href="{{ url_for('library') }}">Browse your library <span>→</span></a>
+    </div>
+    <div class="overview-card overview-language">
+        <div class="overview-label">DEFAULT STORY LANGUAGE</div>
+        <div class="language-display">{{ session['user'].get('preferred_language', 'English') }}</div>
+        <div class="overview-description">You can change this for each story.</div>
+        <a href="{{ url_for('profile') }}">Update preferences <span>→</span></a>
+    </div>
+    <div class="overview-card overview-next">
+        <div class="overview-label">READY WHEN YOU ARE</div>
+        <div class="purpose-title">Start with a photo.</div>
+        <div class="overview-description">Choose the language, style, and length.</div>
+        <a href="{{ url_for('create_story_page') }}">Create a new story <span>→</span></a>
+    </div>
+</section>
+<section class="dashboard-main">
+    <div class="recent-section">
+        <div class="dashboard-section-heading"><div><div class="eyebrow">YOUR COLLECTION</div><h2>Recent stories</h2></div><a href="{{ url_for('library') }}">View library <span>→</span></a></div>
+        {% if recent_stories %}
+        <div class="recent-list">
+            {% for story in recent_stories %}
+            <a class="recent-story" href="{{ url_for('story_detail', story_id=story.id) }}">
+                <img src="{{ url_for('private_media', story_id=story.id, kind='photo') }}" alt="">
+                <div class="recent-story-copy"><strong>{{ story.title }}</strong><span>{{ story.language }} · {{ story.style }}</span></div>
+                <time>{{ story.created_at.strftime('%b %d') }}</time><span class="recent-arrow">→</span>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="dashboard-empty">
+            <div class="empty-icon">✧</div><div><h3>Your collection starts with a photo.</h3><p>Create your first story and it will appear here for you to revisit.</p></div>
+            <a class="button button-outline" href="{{ url_for('create_story_page') }}">Create your first story →</a>
+        </div>
+        {% endif %}
+    </div>
+    <aside class="dashboard-side-note">
+        <div class="eyebrow">HOW IT WORKS</div>
+        <h3>From photo to story</h3>
+        <p>Choose an image and set your preferences. Your story and narration are saved to your library.</p>
+        <div class="workflow-line"><span>01</span><div><strong>Describe</strong><small>Understand the image</small></div></div>
+        <div class="workflow-line"><span>02</span><div><strong>Compose</strong><small>Write in your chosen style</small></div></div>
+        <div class="workflow-line"><span>03</span><div><strong>Narrate</strong><small>Listen and save privately</small></div></div>
+    </aside>
+</section>
+{% endblock %}

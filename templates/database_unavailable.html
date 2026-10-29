@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Database connection{% endblock %}
+{% block content %}
+<section class="page-hero">
+    <div class="hero-copy">
+        <div class="eyebrow eyebrow-light">YOUR STORY STUDIO</div>
+        <h1>Your navigation is here.<br>Let's reconnect your library.</h1>
+        <p>Story creation, library, and profile pages are ready. The MySQL connection needs one setting corrected before personal data can load.</p>
+    </div>
+</section>
+<section class="panel database-panel">
+    <span class="panel-icon panel-icon-lilac">ⓘ</span>
+    <div>
+        <div class="eyebrow">DATABASE CONNECTION</div>
+        <h2>MySQL needs attention</h2>
+        <p>{{ setup_error }}</p>
+        <p>Update your local <code>.env</code> values and reload this page. Your account navigation remains available.</p>
+        <a class="button button-outline" href="{{ url_for('create_story_page') }}">Try connecting again →</a>
+    </div>
+</section>
+{% endblock %}

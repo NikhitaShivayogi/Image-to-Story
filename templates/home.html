@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Stories from your photos{% endblock %}
+{% block auth_content %}
+<section class="landing-hero">
+    <div class="landing-copy">
+        <p class="landing-kicker">PHOTO-TO-STORY STUDIO</p>
+        <h1>Your photo. Your story.</h1>
+        <p class="landing-description">Turn a photo into a story in your chosen language, style, and length. Read it, listen to the narration, and keep it in your personal library.</p>
+        <div class="landing-actions">
+            <a class="landing-primary" href="{{ url_for('signup') }}">Create your account <span aria-hidden="true">→</span></a>
+            <a class="landing-signin" href="{{ url_for('login') }}">Already have an account? <strong>Sign in</strong></a>
+        </div>
+        <p class="landing-languages">English · Hindi · Kannada · Tamil · Telugu · Malayalam</p>
+    </div>
+    <aside class="landing-settings" aria-label="Story options">
+        <p class="landing-settings-label">YOUR STORY, YOUR WAY</p>
+        <h2>Choose what works for you</h2>
+        <div class="landing-setting"><span>Language</span><strong>Choose from 6 languages</strong></div>
+        <div class="landing-setting"><span>Style</span><strong>Reflective, educational, and more</strong></div>
+        <div class="landing-setting"><span>Length</span><strong>Set the word count and paragraphs</strong></div>
+        <div class="landing-setting landing-setting-result"><span>Your result</span><strong>A story and spoken narration</strong></div>
+    </aside>
+</section>
+
+<section class="landing-how" id="how-it-works" aria-labelledby="landing-how-title">
+    <div class="landing-section-heading">
+        <p class="landing-kicker">HOW IT WORKS</p>
+        <h2 id="landing-how-title">Three steps, from photo to story.</h2>
+    </div>
+    <div class="landing-steps">
+        <article class="landing-step">
+            <span class="landing-step-number">01</span>
+            <h3>Upload a photo</h3>
+            <p>Choose an image that holds a memory, sparks a question, or inspires an idea.</p>
+        </article>
+        <article class="landing-step">
+            <span class="landing-step-number">02</span>
+            <h3>Set your preferences</h3>
+            <p>Choose the language, story style, length, paragraph count, and narration voice.</p>
+        </article>
+        <article class="landing-step">
+            <span class="landing-step-number">03</span>
+            <h3>Read, listen, and save</h3>
+            <p>Review your story and narration, then find them later in your private library.</p>
+        </article>
+    </div>
+</section>
+
+<section class="landing-footer">
+    <p>Designed for personal memories, language practice, learning, and creative prompts.</p>
+    <a href="{{ url_for('signup') }}">Start creating <span aria-hidden="true">→</span></a>
+</section>
+{% endblock %}

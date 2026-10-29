@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}My profile{% endblock %}
+{% block content %}
+<section class="page-hero profile-hero">
+    <div class="hero-copy">
+        <div class="eyebrow eyebrow-light">A SPACE THAT'S YOURS</div>
+        <h1>Your profile.</h1>
+        <p>Your studio, your stories, and the language you love.</p>
+    </div>
+    <div class="profile-avatar-large">{{ user.display_name[:1]|upper }}</div>
+</section>
+<section class="panel profile-panel">
+    <div class="panel-heading"><span class="panel-icon panel-icon-lilac">◉</span><div><h3>Personal details</h3><p>Update how your story studio feels.</p></div></div>
+    <form method="post" class="profile-form">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+        <div class="field"><label for="display_name">Display name</label><input id="display_name" name="display_name" value="{{ user.display_name }}" maxlength="80" required></div>
+        <div class="field"><label for="email">Email address</label><input id="email" value="{{ user.email }}" disabled></div>
+        <div class="field field-wide"><label for="bio">About you</label><textarea id="bio" name="bio" rows="4" maxlength="500" placeholder="A little about you...">{{ user.bio }}</textarea></div>
+        <div class="field"><label for="preferred_language">Default story language</label><select name="preferred_language" id="preferred_language">{% for language in languages %}<option value="{{ language }}" {% if language == user.preferred_language %}selected{% endif %}>{{ language }}</option>{% endfor %}</select></div>
+        <div class="field field-wide"><button class="button button-primary" type="submit">Save my profile <span>→</span></button></div>
+    </form>
+</section>
+{% endblock %}

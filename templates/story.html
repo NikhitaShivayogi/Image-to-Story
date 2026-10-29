@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}{{ story.title }}{% endblock %}
+{% block content %}
+<a class="back-link" href="{{ url_for('library') }}">← &nbsp; Back to your library</a>
+<section class="story-detail-hero">
+    <div class="story-detail-image"><img src="{{ url_for('private_media', story_id=story.id, kind='photo') }}" alt="Original photo for {{ story.title }}"></div>
+    <div class="story-detail-heading">
+        <span class="story-language story-language-static">{{ story.language }}</span>
+        <div class="story-card-date">{{ story.created_at.strftime('%B %d, %Y') }}</div>
+        <h1>{{ story.title }}</h1>
+        <p>{{ story.style }} {{ 'style' if story.style in styles else 'feeling' }} · {{ story.word_limit }} words · {{ story.paragraph_count }} paragraphs</p>
+        <div class="story-actions">
+            <a class="button button-primary" href="{{ url_for('private_media', story_id=story.id, kind='audio') }}?download=1">↓ &nbsp; Download narration</a>
+            <a class="button button-outline" href="{{ url_for('private_media', story_id=story.id, kind='photo') }}?download=1">↓ &nbsp; Download photo</a>
+        </div>
+    </div>
+</section>
+<section class="story-reading panel">
+    <div class="eyebrow">YOUR STORY</div>
+    <h2>{{ story.title }}</h2>
+    <div class="story-text">{{ story.story }}</div>
+    <div class="audio-player">
+        <div class="audio-label"><span>♫</span><div><strong>Your narration</strong><small>{{ story.voice|title }} voice · {{ story.language }}</small></div></div>
+        <audio controls preload="metadata" src="{{ url_for('private_media', story_id=story.id, kind='audio') }}">Your browser does not support audio.</audio>
+    </div>
+    <details class="image-description"><summary>Image description</summary><p>{{ story.scenario }}</p></details>
+</section>
+<section class="panel manage-panel">
+    <div><div class="eyebrow">STORY SETTINGS</div><h3>Manage this story</h3></div>
+    <form method="post" action="{{ url_for('rename_story_page', story_id=story.id) }}" class="rename-form">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+        <input name="title" maxlength="120" value="{{ story.title }}" aria-label="Story title">
+        <button class="button button-outline" type="submit">Save title</button>
+    </form>
+    <form method="post" action="{{ url_for('delete_story_page', story_id=story.id) }}" onsubmit="return confirm('Delete this story and its saved photo and narration?');">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+        <button class="button button-danger" type="submit">Delete story</button>
+    </form>
+</section>
+{% endblock %}
